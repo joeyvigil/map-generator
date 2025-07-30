@@ -1,0 +1,187 @@
+| Letter | Prefix |
+| ------ | ------ |
+| A      | Ardent |
+| B      | Black  |
+| C      | Cold   |
+| D      | Dusk   |
+| E      | Ember  |
+| F      | Frost  |
+| G      | Gray   |
+| H      | High   |
+| I      | Iron   |
+| J      | Jade   |
+| K      | Kings  |
+| L      | Lone   |
+| M      | Mist   |
+| N      | North  |
+| O      | Oak    |
+| P      | Pyre   |
+| Q      | Quartz |
+| R      | Red    |
+| S      | Storm  |
+| T      | Thorn  |
+| U      | Umber  |
+| V      | Vale   |
+| W      | West   |
+| X      | Xal    |
+| Y      | Yarrow |
+| Z      | Zephyr |
+
+| Letter | Suffix  |
+| ------ | ------- |
+| A      | -hollow |
+| B      | -bridge |
+| C      | -crest  |
+| D      | -dale   |
+| E      | -reach  |
+| F      | -fall   |
+| G      | -grove  |
+| H      | -haven  |
+| I      | -shire  |
+| J      | -ford   |
+| K      | -keep   |
+| L      | -wyn    |
+| M      | -moor   |
+| N      | -nook   |
+| O      | -hold   |
+| P      | -port   |
+| Q      | -quarry |
+| R      | -rock   |
+| S      | -spire  |
+| T      | -ton    |
+| U      | -run    |
+| V      | -vault  |
+| W      | -watch  |
+| X      | -yx     |
+| Y      | -yard   |
+| Z      | -zar    |
+---
+HashMap<Character, String> cityPrefixes = new HashMap<Character, String>() {{
+  put('A', "Ardent");
+  put('B', "Black");
+  put('C', "Cold");
+  put('D', "Dusk");
+  put('E', "Ember");
+  put('F', "Frost");
+  put('G', "Gray");
+  put('H', "High");
+  put('I', "Iron");
+  put('J', "Jade");
+  put('K', "Kings");
+  put('L', "Lone");
+  put('M', "Mist");
+  put('N', "North");
+  put('O', "Oak");
+  put('P', "Pyre");
+  put('Q', "Quartz");
+  put('R', "Red");
+  put('S', "Storm");
+  put('T', "Thorn");
+  put('U', "Umber");
+  put('V', "Vale");
+  put('W', "West");
+  put('X', "Xal");
+  put('Y', "Yarrow");
+  put('Z', "Zephyr");
+}};
+
+HashMap<Character, String> citySuffixes = new HashMap<Character, String>() {{
+  put('A', "hollow");
+  put('B', "bridge");
+  put('C', "crest");
+  put('D', "dale");
+  put('E', "reach");
+  put('F', "fall");
+  put('G', "grove");
+  put('H', "haven");
+  put('I', "shire");
+  put('J', "ford");
+  put('K', "keep");
+  put('L', "wyn");
+  put('M', "moor");
+  put('N', "nook");
+  put('O', "hold");
+  put('P', "port");
+  put('Q', "quarry");
+  put('R', "rock");
+  put('S', "spire");
+  put('T', "ton");
+  put('U', "run");
+  put('V', "vault");
+  put('W', "watch");
+  put('X', "yx");
+  put('Y', "yard");
+  put('Z', "zar");
+}};
+
+char x = 'F';
+char y = 'L';
+String cityName = cityPrefixes.get(x) + citySuffixes.get(y);
+println(cityName);  // Outputs: Frostwyn
+---
+HashMap<Integer, String> cityPrefixes = new HashMap<Integer, String>() {{
+  put(1, "Ardent");
+  put(2, "Black");
+  put(3, "Cold");
+  put(4, "Dusk");
+  put(5, "Ember");
+  put(6, "Frost");
+  put(7, "Gray");
+  put(8, "High");
+  put(9, "Iron");
+  put(10, "Jade");
+  put(11, "Kings");
+  put(12, "Lone");
+  put(13, "Mist");
+  put(14, "North");
+  put(15, "Oak");
+  put(16, "Pyre");
+  put(17, "Quartz");
+  put(18, "Red");
+  put(19, "Storm");
+  put(20, "Thorn");
+  put(21, "Umber");
+  put(22, "Vale");
+  put(23, "West");
+  put(24, "Xal");
+  put(25, "Yarrow");
+  put(26, "Zephyr");
+}};
+
+HashMap<Integer, String> citySuffixes = new HashMap<Integer, String>() {{
+  put(1, "hollow");
+  put(2, "bridge");
+  put(3, "crest");
+  put(4, "dale");
+  put(5, "reach");
+  put(6, "fall");
+  put(7, "grove");
+  put(8, "haven");
+  put(9, "shire");
+  put(10, "ford");
+  put(11, "keep");
+  put(12, "wyn");
+  put(13, "moor");
+  put(14, "nook");
+  put(15, "hold");
+  put(16, "port");
+  put(17, "quarry");
+  put(18, "rock");
+  put(19, "spire");
+  put(20, "ton");
+  put(21, "run");
+  put(22, "vault");
+  put(23, "watch");
+  put(24, "yx");
+  put(25, "yard");
+  put(26, "zar");
+}};
+
+int x = 6;   // F
+int y = 12;  // L
+
+String cityName = cityPrefixes.get(x) + citySuffixes.get(y);
+println(cityName);  // Frostwyn
+---
+
+

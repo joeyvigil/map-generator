@@ -25,13 +25,14 @@ while (pointx.length < cities) {
   int tempy = int(random(1,sizey));
   print("a");
   boolean make = true; //will 'make' if the the the distance is not within min lenth for each point
-  for (int i = 0; i < pointx.length; i = i+1) {
+  for (int i = 0; i < pointx.length; i = i+1) { //checks all points
     print("b");
-    if(dist(tempx,tempy,pointx[i],pointy[i])< min_dis){
+    if(dist(tempx,tempy,pointx[i],pointy[i])< min_dis){ //if the temp point is within point
       print("c");
       make = false;
     }
   }
+  if(tempx < city_size or tempy < city size or tempx >(sizex-city_size) or tempy >(sizey-city_size)){make = false;}
   if(make){
       pointx = append(pointx, tempx);
       pointy = append(pointy, tempy);

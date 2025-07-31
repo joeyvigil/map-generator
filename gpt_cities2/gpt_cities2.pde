@@ -1,20 +1,20 @@
 // Processing sketch: City map with resource-generating cities and cards
 
-int cols = 20;
-int rows = 20;
+int cols = 16;
+int rows = 16;
 int citySize = 20;
 City[] cities;
 Card[] cards;
-int numCards = 200;
+int numCards = 300;
 
 City selectedCityA = null;
 City selectedCityB = null;
 
-String[] resources = {"coal", "lumber", "iron", "silver", "gold"};
+String[] resources = {"coal", "lumber", "copper", "silver", "gold"};
 color[] resourceColors = {
   color(50),          // coal - dark gray
-  color(34,139,34),   // lumber - green
-  color(169,169,169), // iron - light gray
+  color(139,69,19),   // lumber - bown
+  color(255,0,0),     // copper - red
   color(192,192,192), // silver - silver
   color(255,215,0)    // gold - gold
 };
@@ -40,7 +40,7 @@ void generateCities() {
   ArrayList<City> tempCities = new ArrayList<City>();
   for (int x = 0; x < cols; x++) {
     for (int y = 0; y < rows; y++) {
-      if(random(1)<.25){
+      if(random(1)<.5){
         float posX = map(x + 0.5 + random(-0.3, 0.3), 0, cols, 50, width - 50);
         float posY = map(y + 0.5 + random(-0.3, 0.3), 0, rows, 50, height - 50);
         String name = getLabel(x, y);
@@ -174,7 +174,7 @@ void generateCards() {
   cards = new Card[numCards];
   for (int i = 0; i < numCards; i++) {
     City randCity = cities[int(random(cities.length))];
-    String res = weightedRandomResource();
+    String res = weightedRandomResourceByPosition(randCity.y);
     cards[i] = new Card(randCity, res);
 
     if (!cityResources.containsKey(randCity)) {
@@ -186,12 +186,16 @@ void generateCards() {
   }
 }
 
-String weightedRandomResource() {
+String weightedRandomResourceByPosition(float y) {
+  float normalizedY = map(y, 50, height - 50, 0, 1); // 0 = north, 1 = south
+  float coalProb = lerp(0.6, 0.2, normalizedY);
+  float lumberProb = lerp(0.1, 0.5, normalizedY);
   float r = random(1);
-  if (r < 0.4) return "coal";
-  else if (r < 0.7) return "lumber";
-  else if (r < 0.8) return "iron";
-  else if (r < 0.9) return "silver";
+
+  if (r < coalProb) return "coal";
+  else if (r < coalProb + lumberProb) return "lumber";
+  else if (r < coalProb + lumberProb + 0.1) return "copper";
+  else if (r < coalProb + lumberProb + 0.2) return "silver";
   else return "gold";
 }
 

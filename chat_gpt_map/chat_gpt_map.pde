@@ -1,63 +1,126 @@
-// Processing sketch: City map with resource-generating cities and cards
-
-int cols = 10;
-int rows = 10;
-int citySize = 20;
-City[] cities;
-Card[] cards;
-int numCards = 200;
-
+int numCities = 150;
+int citySize = 15;
+float minDistance = 30;
+int border = 20;
 City selectedCityA = null;
 City selectedCityB = null;
 
-String[] resources = {"coal", "lumber", "iron", "silver", "gold"};
-color[] resourceColors = {
-  color(50),          // coal - dark gray
-  color(34,139,34),   // lumber - green
-  color(169,169,169), // iron - light gray
-  color(192,192,192), // silver - silver
-  color(255,215,0)    // gold - gold
+City[] cities;
+
+
+
+String[] gridLetters = {
+  "A","B","C","D","E","F","G","H",
+  "I","J","K","L","M","N","O","P"
 };
 
-HashMap<City, ArrayList<String>> cityResources = new HashMap<City, ArrayList<String>>();
+String[] syllables = {
+  "al", "an", "ar", "bel", "ber", "cor", "dar", "del", "dor", "el", "en", "far", "fel", "gar", "gil", "hal",
+  "hor", "in", "jor", "kal", "kor", "lam", "lor", "mal", "mor", "nel", "nor", "ol", "or", "ral", "ron", "sar",
+  "sel", "tar", "thal", "tor", "ur", "val", "var", "vor", "zel", "zor"
+};
+
+String[] nameSuffixes = {
+  "stead", "ton", "hold", "hollow", "burg", "reach", "gate", "port", "heim", "fall", "watch", "keep", "spire"
+};
 
 void setup() {
-  size(1000, 1000);
+  size(800, 800);
   textAlign(CENTER, CENTER);
-  textSize(10);
-  generateCities();
+  textSize(12);
+
+  cities = new City[numCities];
+  int placed = 0;
+  int attempts = 0;
+
+  while (placed < numCities && attempts < 10000) {
+    float x = random(border, width - border);
+    float y = random(border, height - border);
+    City newCity = new City(x, y);
+
+    boolean tooClose = false;
+    for (int i = 0; i < placed; i++) {
+      if (dist(newCity.x, newCity.y, cities[i].x, cities[i].y) < minDistance) {
+        tooClose = true;
+        break;
+      }
+    }
+
+    if (!tooClose) {
+      int gridX = int(map(newCity.x, 0, width, 0, 16));
+      int gridY = int(map(newCity.y, 0, height, 0, 16));
+      gridX = constrain(gridX, 0, 15);
+      gridY = constrain(gridY, 0, 15);
+      String label = gridLetters[gridX] + gridLetters[gridY];
+
+      newCity.name = label + "-" + generateCityName();
+
+      cities[placed] = newCity;
+      placed++;
+    }
+
+    attempts++;
+  }
+
   connectCities();
-  generateCards();
 }
 
 void draw() {
-  background(255);
-  drawConnections();
-  drawCities();
+  background(240);
+
+  drawGridOverlay();
+
+  drawGridLabels();
+
+  for (City c : cities) {
+    c.drawRoads();
+  }
+  for (City c : cities) {
+    c.drawCity();
+  }
+
+  noFill();
+  stroke(180, 80);
+  rect(border, border, width - 2 * border, height - 2 * border);
 }
 
-void generateCities() {
-  ArrayList<City> tempCities = new ArrayList<City>();
-  for (int x = 0; x < cols; x++) {
-    for (int y = 0; y < rows; y++) {
-      float posX = map(x + 0.5 + random(-0.3, 0.3), 0, cols, 50, width - 50);
-      float posY = map(y + 0.5 + random(-0.3, 0.3), 0, rows, 50, height - 50);
-      String name = getLabel(x, y);
-      tempCities.add(new City(posX, posY, name));
+
+// --------- City class ---------
+class City {
+  float x, y;
+  String name = "";
+  ArrayList<City> connections;
+
+  City(float x, float y) {
+    this.x = x;
+    this.y = y;
+    connections = new ArrayList<City>();
+  }
+
+  void connectTo(City other) {
+    if (!connections.contains(other)) {
+      connections.add(other);
+      other.connections.add(this);
     }
   }
-  cities = tempCities.toArray(new City[0]);
-}
 
-String getLabel(int x, int y) {
-  char c = (char)('A' + x);
-  return "" + c + (y + 1) + "-" + generateCityName();
-}
+  void drawCity() {
+    fill(50, 100, 200);
+    stroke(0);
+    ellipse(x, y, citySize, citySize);
 
-String generateCityName() {
-  String[] prefixes = {"Zorl", "Kal", "Dar", "Bel", "Thal", "Mir", "Nor", "Fen", "Vor", "Ral", "Gor", "Tar", "Hel", "Sor", "Mar", "Ul"};
-  String[] suffixes = {"ton", "keep", "spire", "mouth", "helm", "port", "bridge", "stead", "shire", "grave", "crest", "burg", "watch", "fall", "dale", "reach"};
-  return prefixes[int(random(prefixes.length))] + suffixes[int(random(suffixes.length))];
+    fill(0);
+    text(name, x, y - citySize * 1.5);
+  }
+
+  void drawRoads() {
+    stroke(100);
+    for (City other : connections) {
+      if (this.x < other.x || (this.x == other.x && this.y < other.y)) {
+        line(x, y, other.x, other.y);
+      }
+    }
+  }
 }
 
 // --------- Connect cities with Prim's algorithm ---------
@@ -95,28 +158,67 @@ void connectCities() {
   }
 }
 
-void drawConnections() {
-  stroke(0);
-  for (City c : cities) {
-    for (City conn : c.connections) {
-      if (c.id < conn.id) {
-        float d = dist(c.x, c.y, conn.x, conn.y);
-        line(c.x, c.y, conn.x, conn.y);
+// --------- Draw A–P axis labels ---------
+void drawGridLabels() {
+  fill(0);
+  for (int i = 0; i < 16; i++) {
+    float pos = map(i + 0.5, 0, 16, 0, width);
+    text(gridLetters[i], pos, 10);         // X top
+    text(gridLetters[i], 10, pos);         // Y left
+  }
+}
 
-        // Optional: draw road cost
-        fill(0);
-        text(nf(d, 1, 1), (c.x + conn.x) / 2, (c.y + conn.y) / 2);
-      }
+// --------- Generate Syllable-Based City Name ---------
+String generateCityName() {
+  int syllableCount = int(random(2, 4)); // 2–3 syllables
+  String name = "";
+
+  for (int i = 0; i < syllableCount; i++) {
+    name += syllables[int(random(syllables.length))];
+  }
+
+  // Capitalize first letter
+  name = name.substring(0,1).toUpperCase() + name.substring(1);
+
+  // Optional suffix
+  if (random(1) < 0.8) {
+    name += nameSuffixes[int(random(nameSuffixes.length))];
+  }
+
+  return name;
+}
+
+// --------- Grid ---------
+void drawGridOverlay() {
+  stroke(200);
+  strokeWeight(1);
+  fill(150, 150, 150, 50);
+  textAlign(CENTER, CENTER);
+  textSize(10);
+
+  float cellW = width / 16.0;
+  float cellH = height / 16.0;
+
+  for (int y = 0; y < 16; y++) {
+    for (int x = 0; x < 16; x++) {
+      float posX = x * cellW;
+      float posY = y * cellH;
+
+      // Draw grid rectangle
+      noFill();
+      rect(posX, posY, cellW, cellH);
+
+      // Draw region label in center of the cell
+      //String label = gridLetters[x] + gridLetters[y];
+      //fill(100, 100, 100, 100);
+      //noStroke();
+      //text(label, posX + cellW / 2, posY + cellH / 2);
+      //stroke(200);
+      //noFill();
     }
   }
 }
-
-void drawCities() {
-  for (City c : cities) {
-    c.drawCity();
-  }
-}
-
+// Add this mousePressed() function:
 void mousePressed() {
   for (City c : cities) {
     float d = dist(mouseX, mouseY, c.x, c.y);
@@ -125,16 +227,9 @@ void mousePressed() {
         selectedCityA = c;
       } else if (selectedCityB == null && c != selectedCityA) {
         selectedCityB = c;
-
-        if (selectedCityA.connections.contains(selectedCityB)) {
-          selectedCityA.connections.remove(selectedCityB);
-          selectedCityB.connections.remove(selectedCityA);
-          println("Disconnected " + selectedCityA.name + " from " + selectedCityB.name);
-        } else {
-          selectedCityA.connectTo(selectedCityB);
-          println("Connected " + selectedCityA.name + " to " + selectedCityB.name);
-        }
-
+        // Connect the two cities
+        selectedCityA.connectTo(selectedCityB);
+        println("Connected " + selectedCityA.name + " to " + selectedCityB.name);
         selectedCityA = null;
         selectedCityB = null;
       }
@@ -142,11 +237,17 @@ void mousePressed() {
     }
   }
 }
-
+// export a JPG image of your city map
 void keyPressed() {
   if (key == 's' || key == 'S') {
     save("map.jpg");
     println("map.jpg exported");
+  }
+  if (key == 'p' || key == 'P') {
+    println("City Names:");
+    for (City c : cities) {
+      println(c.name);
+    }
   }
   if (key == 'c' || key == 'C') {
     println("City Names:");
@@ -157,98 +258,5 @@ void keyPressed() {
     }
     saveStrings("city_names.txt", lines);
     println("City names exported to city_names.txt");
-  }
-  if (key == 'r' || key == 'R') {
-    String[] cardLines = new String[numCards];
-    for (int i = 0; i < numCards; i++) {
-      cardLines[i] = cards[i].city.name + ", " + cards[i].resource;
-    }
-    saveStrings("cards.txt", cardLines);
-    println("Card list exported to cards.txt");
-  }
-}
-
-void generateCards() {
-  cards = new Card[numCards];
-  for (int i = 0; i < numCards; i++) {
-    City randCity = cities[int(random(cities.length))];
-    String res = weightedRandomResource();
-    cards[i] = new Card(randCity, res);
-
-    if (!cityResources.containsKey(randCity)) {
-      cityResources.put(randCity, new ArrayList<String>());
-    }
-    if (!cityResources.get(randCity).contains(res)) {
-      cityResources.get(randCity).add(res);
-    }
-  }
-}
-
-String weightedRandomResource() {
-  float r = random(1);
-  if (r < 0.4) return "coal";
-  else if (r < 0.7) return "lumber";
-  else if (r < 0.8) return "iron";
-  else if (r < 0.9) return "silver";
-  else return "gold";
-}
-
-int getResourceIndex(String res) {
-  for (int i = 0; i < resources.length; i++) {
-    if (resources[i].equals(res)) return i;
-  }
-  return 0; // fallback
-}
-
-class City {
-  float x, y;
-  String name;
-  int id;
-  ArrayList<City> connections = new ArrayList<City>();
-
-  City(float x, float y, String name) {
-    this.x = x;
-    this.y = y;
-    this.name = name;
-    this.id = int(random(100000));
-  }
-
-  void connectTo(City other) {
-    if (!connections.contains(other)) connections.add(other);
-    if (!other.connections.contains(this)) other.connections.add(this);
-  }
-
-  void drawCity() {
-    fill(50, 100, 200);
-    stroke(0);
-    ellipse(x, y, citySize, citySize);
-
-    fill(0);
-    text(name, x, y - citySize * 1.5);
-
-    // Draw resource dots
-    if (cityResources.containsKey(this)) {
-      ArrayList<String> resList = cityResources.get(this);
-      float offsetStep = 6;
-      float baseY = y + citySize / 2 + 4;
-
-      for (int i = 0; i < resList.size(); i++) {
-        String res = resList.get(i);
-        int resIndex = getResourceIndex(res);
-        fill(resourceColors[resIndex]);
-        noStroke();
-        ellipse(x + (i - resList.size() / 2.0) * offsetStep, baseY, 6, 6);
-      }
-    }
-  }
-}
-
-class Card {
-  City city;
-  String resource;
-
-  Card(City city, String resource) {
-    this.city = city;
-    this.resource = resource;
   }
 }

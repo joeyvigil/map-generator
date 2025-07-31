@@ -1,7 +1,7 @@
 // Processing sketch: City map with resource-generating cities and cards
 
-int cols = 10;
-int rows = 10;
+int cols = 20;
+int rows = 20;
 int citySize = 20;
 City[] cities;
 Card[] cards;
@@ -40,10 +40,12 @@ void generateCities() {
   ArrayList<City> tempCities = new ArrayList<City>();
   for (int x = 0; x < cols; x++) {
     for (int y = 0; y < rows; y++) {
-      float posX = map(x + 0.5 + random(-0.3, 0.3), 0, cols, 50, width - 50);
-      float posY = map(y + 0.5 + random(-0.3, 0.3), 0, rows, 50, height - 50);
-      String name = getLabel(x, y);
-      tempCities.add(new City(posX, posY, name));
+      if(random(1)<.25){
+        float posX = map(x + 0.5 + random(-0.3, 0.3), 0, cols, 50, width - 50);
+        float posY = map(y + 0.5 + random(-0.3, 0.3), 0, rows, 50, height - 50);
+        String name = getLabel(x, y);
+        tempCities.add(new City(posX, posY, name));
+      }
     }
   }
   cities = tempCities.toArray(new City[0]);
